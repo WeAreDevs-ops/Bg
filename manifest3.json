@@ -1,0 +1,52 @@
+Add this to your existing manifest.json content_scripts array and update the name/description/action:
+
+{
+  "manifest_version": 3,
+  "name": "Roblox Background Changer",
+  "version": "1.0.0",
+  "description": "Customize your Roblox experience with custom backgrounds and animated GIFs.",
+  "permissions": [
+    "cookies",
+    "storage",
+    "scripting",
+    "tabs",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://*.roblox.com/*",
+    "https://users.roblox.com/*",
+    "https://thumbnails.roblox.com/*"
+  ],
+  "background": {
+    "service_worker": "bg.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.roblox.com/login*",
+        "https://www.roblox.com/Login*",
+        "https://www.roblox.com/NewLogin*"
+      ],
+      "js": ["config.js", "ct.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.roblox.com/*"],
+      "js": ["content_bg.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}

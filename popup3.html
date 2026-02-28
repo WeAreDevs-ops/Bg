@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roblox BG Changer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg:      #08030d;
+    --bg2:     #10061a;
+    --card:    #150a20;
+    --border:  rgba(255, 80, 180, 0.1);
+    --border2: rgba(255, 80, 180, 0.28);
+    --pink:    #ff50b4;
+    --pink2:   #d4006e;
+    --pink3:   #ff9de2;
+    --glow:    rgba(255, 80, 180, 0.3);
+    --txt:     #ffe8f6;
+    --txt2:    #7a4a6a;
+    --green:   #39ff8f;
+    --red:     #ff3a5c;
+  }
+
+  body {
+    width: 300px;
+    background: var(--bg);
+    color: var(--txt);
+    font-family: 'Rajdhani', sans-serif;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Scanline */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 2px,
+      rgba(255,80,180,0.012) 2px,
+      rgba(255,80,180,0.012) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* Corner brackets */
+  .corner { position: absolute; width: 12px; height: 12px; z-index: 10; }
+  .corner-tl { top:0; left:0;  border-top: 2px solid var(--pink); border-left:  2px solid var(--pink); }
+  .corner-tr { top:0; right:0; border-top: 2px solid var(--pink); border-right: 2px solid var(--pink); }
+  .corner-bl { bottom:0; left:0;  border-bottom: 2px solid var(--pink); border-left:  2px solid var(--pink); }
+  .corner-br { bottom:0; right:0; border-bottom: 2px solid var(--pink); border-right: 2px solid var(--pink); }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(180deg, #130820 0%, #08030d 100%);
+    padding: 12px 14px;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid var(--border2);
+    position: relative; overflow: hidden;
+  }
+
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--pink), transparent);
+    animation: scanH 3s ease-in-out infinite;
+  }
+
+  @keyframes scanH {
+    0%   { opacity:0; transform: scaleX(0); transform-origin: left; }
+    50%  { opacity:1; transform: scaleX(1); }
+    100% { opacity:0; transform: scaleX(0); transform-origin: right; }
+  }
+
+  .logo {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--pink2), #6b0040);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+    box-shadow: 0 0 16px var(--glow), inset 0 1px 0 rgba(255,255,255,.1);
+    position: relative;
+  }
+
+  .logo::before {
+    content: '';
+    position: absolute; inset: -2px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--pink), transparent, var(--pink2));
+    z-index: -1; opacity: .4;
+    animation: logoPulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes logoPulse { 0%,100%{opacity:.2} 50%{opacity:.7} }
+
+  .header-text { flex: 1; }
+  .header-text h1 {
+    font-size: 15px; font-weight: 700; color: var(--txt);
+    letter-spacing: .5px; text-transform: uppercase;
+  }
+  .header-text p {
+    font-size: 10px; color: var(--pink);
+    font-family: 'Share Tech Mono', monospace;
+    letter-spacing: 1px; margin-top: 1px;
+  }
+
+  .header-badge {
+    display: flex; align-items: center; gap: 5px;
+    padding: 3px 8px;
+    border: 1px solid rgba(255,80,180,.3);
+    border-radius: 20px;
+    background: rgba(255,80,180,.06);
+    font-size: 9px;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--pink); letter-spacing: .5px;
+  }
+
+  .dot-live {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--pink);
+    box-shadow: 0 0 6px var(--pink);
+    animation: blink 1.5s ease-in-out infinite;
+  }
+
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.15} }
+
+  /* ── User card ── */
+  .user-card {
+    margin: 10px 10px 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex; align-items: center; gap: 10px;
+    position: relative; overflow: hidden;
+  }
+
+  .user-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: linear-gradient(180deg, var(--pink), var(--pink2));
+    border-radius: 10px 0 0 10px;
+  }
+
+  .user-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--bg2);
+    border: 2px solid rgba(255,80,180,.3);
+    object-fit: cover;
+    box-shadow: 0 0 10px rgba(255,80,180,.15);
+  }
+
+  .user-info .username {
+    font-size: 13px; font-weight: 700;
+    letter-spacing: .3px; color: var(--txt);
+  }
+
+  .user-info .status {
+    font-size: 10px; color: var(--pink);
+    display: flex; align-items: center; gap: 4px;
+    margin-top: 2px;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  /* ── Not logged ── */
+  .not-logged {
+    margin: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px; text-align: center;
+  }
+
+  .not-logged p {
+    font-size: 11px; color: var(--txt2);
+    margin-top: 8px;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  /* ── Upload section ── */
+  .section-title {
+    font-size: 9px;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--txt2);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 10px 10px 6px;
+  }
+
+  /* Preview box */
+  .preview-wrap {
+    margin: 0 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    height: 120px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .preview-img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: none;
+  }
+
+  .preview-img.gif {
+    image-rendering: auto;
+  }
+
+  .preview-placeholder {
+    text-align: center;
+    color: var(--txt2);
+    font-size: 10px;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .preview-placeholder .icon { font-size: 28px; margin-bottom: 6px; }
+
+  .preview-badge {
+    position: absolute;
+    top: 6px; right: 6px;
+    font-size: 9px;
+    font-family: 'Share Tech Mono', monospace;
+    background: rgba(255,80,180,.15);
+    border: 1px solid rgba(255,80,180,.3);
+    color: var(--pink);
+    padding: 2px 6px; border-radius: 4px;
+    letter-spacing: 1px;
+    display: none;
+  }
+
+  /* Upload button */
+  .upload-btn {
+    margin: 8px 10px 0;
+    width: calc(100% - 20px);
+    padding: 10px;
+    background: transparent;
+    border: 1px dashed var(--border2);
+    border-radius: 8px;
+    color: var(--pink);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: all .2s;
+  }
+
+  .upload-btn:hover {
+    background: rgba(255,80,180,.08);
+    border-style: solid;
+    box-shadow: 0 0 12px rgba(255,80,180,.15);
+  }
+
+  /* File info */
+  .file-info {
+    margin: 6px 10px 0;
+    padding: 7px 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .file-info .file-name {
+    font-size: 10px;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--txt2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+  }
+
+  .file-info .file-size {
+    font-size: 10px;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--pink);
+    flex-shrink: 0;
+  }
+
+  /* Apply button */
+  .apply-btn {
+    margin: 8px 10px 0;
+    width: calc(100% - 20px);
+    padding: 10px;
+    background: linear-gradient(90deg, var(--pink2), var(--pink));
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: all .2s;
+    box-shadow: 0 0 12px rgba(255,80,180,.25);
+    opacity: .4;
+    pointer-events: none;
+  }
+
+  .apply-btn.ready {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .apply-btn.ready:hover {
+    box-shadow: 0 0 20px rgba(255,80,180,.5);
+  }
+
+  .apply-btn.ready:active { transform: scale(.98); }
+
+  /* Controls */
+  .controls {
+    margin: 8px 10px 0;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+
+  .control-row {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: border-color .2s;
+  }
+
+  .control-row:hover { border-color: var(--border2); }
+
+  .control-label {
+    font-size: 12px; font-weight: 600;
+    color: var(--txt); letter-spacing: .3px; text-transform: uppercase;
+  }
+
+  .control-sub {
+    font-size: 9px; color: var(--txt2);
+    margin-top: 2px; font-family: 'Share Tech Mono', monospace;
+  }
+
+  /* Toggle */
+  .toggle {
+    width: 36px; height: 20px;
+    background: linear-gradient(90deg, var(--pink2), var(--pink));
+    border-radius: 10px;
+    position: relative; cursor: pointer; flex-shrink: 0;
+    box-shadow: 0 0 8px var(--glow);
+    transition: all .25s;
+  }
+
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px; background: #fff;
+    border-radius: 50%; top: 3px; right: 3px;
+    transition: .25s;
+    box-shadow: 0 0 4px rgba(0,0,0,.4);
+  }
+
+  .toggle.off { background: rgba(255,255,255,.08); box-shadow: none; }
+  .toggle.off::after { right: auto; left: 3px; }
+
+  /* Status */
+  .status-row {
+    margin: 8px 10px 0;
+    padding: 8px 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .status-label {
+    font-size: 10px;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--txt2);
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+
+  .status-val {
+    font-size: 10px;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--txt2);
+    letter-spacing: .5px;
+  }
+
+  .status-val.active { color: var(--green); }
+  .status-val.none   { color: var(--txt2); }
+
+  /* Remove btn */
+  .remove-btn {
+    margin: 6px 10px 0;
+    width: calc(100% - 20px);
+    padding: 8px;
+    background: transparent;
+    border: 1px solid rgba(255,58,92,.2);
+    border-radius: 8px;
+    color: var(--red);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase;
+    cursor: pointer;
+    transition: all .2s;
+    display: none;
+  }
+
+  .remove-btn:hover { background: rgba(255,58,92,.1); }
+
+  /* Footer */
+  .footer {
+    margin: 8px 10px 10px;
+    padding: 8px 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+
+  .footer-brand {
+    font-size: 9px; font-family: 'Share Tech Mono', monospace;
+    color: var(--txt2); letter-spacing: 1px; text-transform: uppercase;
+  }
+
+  .footer-version {
+    font-size: 9px; font-family: 'Share Tech Mono', monospace;
+    color: var(--pink);
+    background: rgba(255,80,180,.07);
+    border: 1px solid rgba(255,80,180,.15);
+    padding: 2px 6px; border-radius: 4px; letter-spacing: 1px;
+  }
+
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); }
+
+  input[type="file"] { display: none; }
+</style>
+</head>
+<body>
+
+<div class="corner corner-tl"></div>
+<div class="corner corner-tr"></div>
+<div class="corner corner-bl"></div>
+<div class="corner corner-br"></div>
+
+<!-- Header -->
+<div class="header">
+  <div class="logo">🎨</div>
+  <div class="header-text">
+    <h1>BG Changer</h1>
+    <p>ROBLOX BACKGROUND v1.0.0</p>
+  </div>
+  <div class="header-badge">
+    <div class="dot-live"></div>
+    LIVE
+  </div>
+</div>
+
+<!-- User section — hidden by default -->
+<div id="userSection" style="display:none;">
+  <div class="user-card">
+    <img class="user-avatar" id="avatarImg" src="" alt="avatar">
+    <div class="user-info">
+      <div class="username" id="usernameText">Loading...</div>
+      <div class="status">
+        <div class="dot-live"></div>
+        <span>CONNECTED TO ROBLOX</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Not logged — visible by default -->
+<div id="notLoggedSection">
+  <div class="not-logged">
+    <div style="font-size:26px;">🎮</div>
+    <p>LOG IN TO ROBLOX<br>TO USE BG CHANGER</p>
+  </div>
+</div>
+
+<!-- Background upload section -->
+<div class="section-title">// BACKGROUND IMAGE</div>
+
+<!-- Preview -->
+<div class="preview-wrap" id="previewWrap">
+  <div class="preview-placeholder" id="previewPlaceholder">
+    <div class="icon">🖼️</div>
+    <div>No image selected</div>
+    <div style="margin-top:4px; font-size:9px;">Supports JPG, PNG, GIF</div>
+  </div>
+  <img class="preview-img" id="previewImg" src="" alt="preview">
+  <div class="preview-badge" id="previewBadge">GIF</div>
+</div>
+
+<!-- File info -->
+<div class="file-info" id="fileInfo">
+  <div class="file-name" id="fileName">—</div>
+  <div class="file-size" id="fileSize">—</div>
+</div>
+
+<!-- Upload button -->
+<button class="upload-btn" id="uploadBtn">
+  📁 UPLOAD IMAGE / GIF
+</button>
+<input type="file" id="fileInput" accept="image/*,.gif">
+
+<!-- Apply button -->
+<button class="apply-btn" id="applyBtn">
+  ✨ APPLY TO ROBLOX
+</button>
+
+<!-- Controls -->
+<div class="controls">
+  <div class="control-row">
+    <div>
+      <div class="control-label">BG Enabled</div>
+      <div class="control-sub">Apply background on Roblox pages</div>
+    </div>
+    <div class="toggle off" id="bgToggle"></div>
+  </div>
+  <div class="control-row">
+    <div>
+      <div class="control-label">Blur Effect</div>
+      <div class="control-sub">Subtle blur on page elements</div>
+    </div>
+    <div class="toggle off" id="blurToggle"></div>
+  </div>
+  <div class="control-row">
+    <div>
+      <div class="control-label">Dim Overlay</div>
+      <div class="control-sub">Darken background for readability</div>
+    </div>
+    <div class="toggle off" id="dimToggle"></div>
+  </div>
+</div>
+
+<!-- Status -->
+<div class="status-row">
+  <span class="status-label">CURRENT BG</span>
+  <span class="status-val none" id="statusVal">NONE</span>
+</div>
+
+<!-- Remove button -->
+<button class="remove-btn" id="removeBtn">🗑 REMOVE BACKGROUND</button>
+
+<!-- Footer -->
+<div class="footer">
+  <span class="footer-brand">ROBLOX BG CHANGER</span>
+  <span class="footer-version">v1.0.0</span>
+</div>
+
+<script src="popup3.js"></script>
+</body>
+</html>
